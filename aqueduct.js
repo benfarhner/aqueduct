@@ -47,13 +47,9 @@ export default class Aqueduct {
    * @param {object} config SPA configuration
    */
   constructor(config) {
-    this.#config = config;
-    this.#routes = config.routes ?? [];
-    this.#injectables = config.injectables ?? {};
-
-    if (this.#routes.length === 0) {
-      console.warn('No routes provided');
-    }
+    this.#config = config ?? {};
+    this.#routes = this.#config.routes ?? [];
+    this.#injectables = this.#config.injectables ?? {};
 
     // Sanitize all provided route paths
     this.#routes.forEach(i => i.path = this.#sanitizeRoutePath(i.path));
@@ -176,7 +172,7 @@ export default class Aqueduct {
         }
       }
 
-      // Find all of the links that begin with `/` and plug them into the router
+      // Find all of the links that begin with '/' and plug them into the router
       this.#root.querySelectorAll('[href^="/"]').forEach(link => 
         link.addEventListener('click', async event => {
           event.preventDefault();
@@ -196,24 +192,17 @@ export default class Aqueduct {
 
   /**
    * @function init
-   * Initializes the single-page application. Should be called after document
-   * loads, e.g.
-   * `window.addEventListener('load', spa.init);`
+   * Initializes the single-page application. Should be called after DOM loads.
    * @returns {Promise}
    */
   async init() {
-    // Reference the root element
-    this.#root = document.querySelector(this.#config.root);
-
-    if (!this.#root) {
-      console.error('Missing root element');
-    }
+    // Reference the root element with fallback
+    this.#root = document.querySelector(this.#config.root) ?? document.body;
     
-    // Load route whenever the URL hash changes
-    window.addEventListener('popstate', async () => {
-      const routePath = new URL(window.location.href).pathname;
-      await this.#loadRoute(routePath);
-    });
+    // Load route whenever the URL path changes
+    window.addEventListener('popstate',
+      async () => await this.#loadRoute(new URL(window.location.href).pathname)
+    );
 
     // Register global handler for easy routing
     window.routeTo = this.routeTo.bind(this);
@@ -228,7 +217,7 @@ export default class Aqueduct {
    */
   async routeTo(routePath) {
     const sanitizedRoutePath = this.#sanitizeRoutePath(routePath);
-    window.history.pushState({}, "", sanitizedRoutePath);
+    window.history.pushState({}, '', sanitizedRoutePath);
     await this.#loadRoute(sanitizedRoutePath);
   }
 }
