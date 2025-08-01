@@ -1,7 +1,11 @@
 # aqueduct
-A barebones vanilla JavaScript single-page application router. Only **2,358 bytes***!
+A barebones vanilla JavaScript single-page application router. Only **1,997 bytes***!
 
-_* When minified with `npx uglify-js aqueduct.js -c -m -o aqueduct.min.js`_
+_* When minified with UglifyJS:_
+
+```
+npx uglify-js aqueduct.js -c -m --mangle-props regex="/^#/" -o aqueduct.min.js
+```
 
 ## Quick start
 
